@@ -1,0 +1,28 @@
+# Виртуальное окружение (локальное)
+.venv
+venv
+env
+
+# Кэш Python
+__pycache__
+*.pyc
+*.pyo
+
+# Системные файлы
+.git
+.gitignore
+.env
+.idea
+.vscode
+
+# Документация и временные файлы
+*.md
+!README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Логи и прочее
+*.log
+.pytest_cache
+.coverage

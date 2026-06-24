@@ -1,0 +1,67 @@
+# Виртуальное окружение
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Распределённые файлы
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Логи и базы данных
+*.log
+*.sqlite
+*.db
+
+# Переменные окружения (реальные секреты)
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker-тома (если будут)
+/data/
+/postgres_data/
+/minio_data/
+
+# Файлы отчётов и покрытия
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Файлы Alembic (версии миграций обычно коммитят, но если не хотите – исключите)
+# alembic/versions/*.py
+# но обычно их коммитят, поэтому не исключаем.
+
+# Всё, что относится к локальной разработке, но не к коду
+.env.example – коммитим (это шаблон)
