@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 class ProjectBase(BaseModel):
-    name: str = Field(..., description="Название проекта")
+    title: str = Field(..., description="Название проекта")
     description: Optional[str] = Field(None, description="Описание проекта")
 
 class ProjectCreate(ProjectBase):
@@ -11,7 +11,7 @@ class ProjectCreate(ProjectBase):
     owner_id: Optional[int] = Field(None, description="ID владельца проекта")
 
 class ProjectUpdate(BaseModel):
-    name: Optional[str] = None
+    title: Optional[str] = None
     description: Optional[str] = None
 
 class ProjectResponse(ProjectBase):

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import HTTPException, status, APIRouter
 
-from app.schemas.user import UserResponse, UserCreate, UserUpdate
+from app.schemas.users import UserResponse, UserCreate, UserUpdate
 
 
 router = APIRouter(

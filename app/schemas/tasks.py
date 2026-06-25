@@ -1,18 +1,9 @@
-from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Optional
 
-class TaskStatus(str, Enum):
-    IN_PROGRESS = "Выполняется"
-    IN_PLAN = "Запланирована"
-    COMPLETED = "Завершена"
-    DROPPED = "Брошена"
+from app.core.enums import TaskPriority, TaskStatus
 
-class TaskPriority(str, Enum):
-    LOW = "Низкий"
-    MEDIUM = "Средний"
-    HIGH = "Высокий"
 
 class TaskBase(BaseModel):
     title: str = Field(..., description="Название задачи")
