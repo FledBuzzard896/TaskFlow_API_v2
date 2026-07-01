@@ -1,8 +1,8 @@
 # TaskFlow API v2
 
-**TaskFlow API** — это бэкенд-сервис для управления задачами, проектами и пользователями.  
-Проект разработан в рамках учебного плана и представляет собой REST API с открытой документацией (Swagger).  
-На текущем этапе данные хранятся в оперативной памяти, но структура готова к масштабированию и подключению внешних сервисов (PostgreSQL, S3, Keycloak).
+**TaskFlow API** — бэкенд-сервис для управления задачами, проектами и пользователями.  
+Проект разработан в рамках учебного плана. На текущем этапе реализовано полноценное хранение данных в PostgreSQL с использованием SQLAlchemy ORM и Alembic для миграций.  
+API документировано через Swagger (OpenAPI).
 
 ---
 
@@ -12,29 +12,52 @@
 - **FastAPI** – веб-фреймворк
 - **Pydantic** – валидация данных и схемы
 - **Uvicorn** – ASGI-сервер
+- **SQLAlchemy** 2.0 – ORM
+- **Alembic** – миграции базы данных
+- **asyncpg** / **psycopg2** – драйверы PostgreSQL
 - **Docker** и **Docker Compose** – контейнеризация
 - **OpenAPI / Swagger** – автодокументация API
 
 ---
 
 ## Структура проекта
+
 ```text
 TaskFlow_API_v2/
 ├── app/
-│ ├── api/
-│ │ └── v1/
-│ │ ├── endpoints/
-│ │ │ ├── tasks.py
-│ │ │ ├── projects.py
-│ │ │ └── users.py
-│ │ └── router.py
-│ ├── core/
-│ │ └── config.py 
-│ ├── schemas/
-│ │ ├── tasks.py
-│ │ ├── projects.py
-│ │ └── users.py
-│ └── main.py 
+│   ├── api/
+│   │   └── v1/
+│   │       ├── endpoints/
+│   │       │   ├── tasks.py
+│   │       │   ├── projects.py
+│   │       │   └── users.py
+│   │       └── router.py
+│   ├── core/
+│   │   ├── config.py
+│   │   └── enums.py
+│   ├── db/
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   └── models/
+│   │       ├── task.py
+│   │       ├── project.py
+│   │       └── user.py
+│   ├── repositories/
+│   │   ├── task_repository.py
+│   │   ├── project_repository.py
+│   │   └── user_repository.py
+│   ├── schemas/
+│   │   ├── task.py
+│   │   ├── project.py
+│   │   └── user.py
+│   ├── services/
+│   │   ├── task_service.py
+│   │   ├── project_service.py
+│   │   └── user_service.py
+│   └── main.py
+├── alembic/
+│   ├── versions/
+│   └── env.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -46,54 +69,97 @@ TaskFlow_API_v2/
 
 ---
 
-## Модули API
+## Модули и слои
 
-| Модуль        | Описание                                                                 |
+| Слой          | Описание                                                                 |
 |---------------|--------------------------------------------------------------------------|
-| **Tasks**     | Управление задачами: создание, просмотр (с фильтрацией и пагинацией), обновление, удаление. |
-| **Projects**  | Управление проектами: создание, просмотр, обновление, удаление.           |
-| **Users**     | Управление пользователями: создание, просмотр, обновление, удаление.      |
+| **API (endpoints)** | Обрабатывают HTTP-запросы, валидируют входные данные через Pydantic, вызывают сервисы. |
+| **Services**  | Содержат бизнес-логику: проверки существования связанных сущностей, преобразования данных. |
+| **Repositories** | Инкапсулируют запросы к базе данных через SQLAlchemy.                     |
+| **Models**    | SQLAlchemy-модели, описывающие таблицы БД.                               |
+| **Schemas**   | Pydantic-схемы для валидации запросов и сериализации ответов.            |
 
 Все эндпоинты доступны по префиксу `/api/v1`.  
-Полная документация автоматически генерируется и доступна по адресу `/docs`.
+Полная документация API генерируется автоматически и доступна по адресу `/docs`.
+
+---
+
+## База данных и миграции
+
+Проект использует **PostgreSQL** как основное хранилище.  
+Управление схемой выполняется через **Alembic**.
+
+### Модели данных
+
+- **User** – пользователи (username, email, full_name, is_active, created_at)
+- **Project** – проекты (title, description, owner_id, created_at)
+- **Task** – задачи (title, description, status, deadline, project_id, assignee_id, priority, user_id, created_at)
+
+Связи:  
+- Проект → Задачи (один ко многим)  
+- Пользователь → Задачи (как исполнитель и как автор)  
+- Пользователь → Проекты (как владелец)
+
+### Команды для миграций
+
+Все команды выполняются внутри контейнера `app`:
+
+```bash
+# Создать миграцию на основе изменений в моделях
+docker-compose exec app alembic revision --autogenerate -m "Описание изменений"
+
+# Применить все миграции
+docker-compose exec app alembic upgrade head
+
+# Откатить последнюю миграцию
+docker-compose exec app alembic downgrade -1
+```
+
+Если база данных пуста, миграции создадут все необходимые таблицы.
 
 ---
 
 ## Переменные окружения
 
-Для работы приложения используется файл `.env` (или переменные окружения).  
-Пример доступен в `.env.example`:
+Для работы приложения требуется файл `.env` (пример в `.env.example`):
 
 ```env
-# Режим работы приложения
+# Режим работы
 ENV=development
+
+# Строка подключения к PostgreSQL
+DATABASE_URL=postgresql://taskflow_user:taskflow_pass@postgres:5432/taskflow_db
 ```
+
+В Docker Compose переменные загружаются автоматически из `.env` файла.
+
+---
+
 ## Запуск проекта
 
 ### Локальный запуск (без Docker)
 
-1. Убедитесь, что установлен Python 3.12.
+1. Убедитесь, что установлен Python 3.12 и PostgreSQL (или используйте удалённую БД).
 2. Создайте и активируйте виртуальное окружение:
-
    ```bash
    python -m venv venv
    source venv/bin/activate   # Linux/Mac
    venv\Scripts\activate      # Windows
    ```
-
 3. Установите зависимости:
-
    ```bash
    pip install -r requirements.txt
    ```
-
-4. Запустите сервер:
-
+4. Создайте файл `.env` со строкой подключения к вашей БД.
+5. Примените миграции:
+   ```bash
+   alembic upgrade head
+   ```
+6. Запустите сервер:
    ```bash
    uvicorn app.main:app --reload
    ```
-
-5. Откройте в браузере: [http://localhost:8000/docs](http://localhost:8000/docs)
+7. Откройте Swagger: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
@@ -101,19 +167,22 @@ ENV=development
 
 1. Убедитесь, что Docker и Docker Compose установлены.
 2. В корневой папке проекта выполните:
-
    ```bash
    docker-compose up --build
    ```
+3. Дождитесь запуска контейнеров (`app` и `postgres`).
+4. Примените миграции (если они не применяются автоматически):
+   ```bash
+   docker-compose exec app alembic upgrade head
+   ```
+5. Приложение доступно по адресу: [http://localhost:8000](http://localhost:8000)  
+   Swagger: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-3. Приложение будет доступно по адресу: [http://localhost:8000](http://localhost:8000)  
-   Swagger-документация: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-4. Для остановки нажмите `Ctrl+C`, затем выполните:
-
+6. Для остановки нажмите `Ctrl+C`, затем:
    ```bash
    docker-compose down
    ```
+   Чтобы полностью удалить данные БД (том), используйте `docker-compose down -v`.
 
 ---
 
