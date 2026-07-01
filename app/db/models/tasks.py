@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLEnum, func
 from sqlalchemy.orm import relationship
 
-from app.core.enums import TaskStatus
+from app.core.enums import TaskStatus, TaskPriority
 from app.db.base import Base
 
 
@@ -12,10 +12,12 @@ class Task(Base):
     title = Column(String, nullable=False)
     description = Column(String)
     status = Column(SQLEnum(TaskStatus), default=TaskStatus.IN_PLAN)
-    deadline = Column(DateTime, nullable=True)
+    deadline = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     project_id = Column(Integer, ForeignKey("projects.id"), index=True)
     assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    priority = Column(SQLEnum(TaskPriority), default=TaskPriority.MEDIUM)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # автор
 
     # связи (опционально)
     project = relationship("Project", back_populates="tasks")

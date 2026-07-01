@@ -8,7 +8,8 @@ class UserBase(BaseModel):
     full_name: Optional[str] = Field(None, description="Полное имя")
 
 class UserCreate(UserBase):
-    password: Optional[str] = Field(None, description="Пароль (только для этапа без Keycloak)")
+    None
+    #password: Optional[str] = Field(None, description="Пароль (только для этапа без Keycloak)")
     # На этапе 1 пароль можно не хранить, но для тестов пригодится
 
 class UserUpdate(BaseModel):

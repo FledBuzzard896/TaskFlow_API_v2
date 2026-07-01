@@ -18,4 +18,4 @@ class ProjectResponse(ProjectBase):
     id: int
     owner_id: Optional[int]
     created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    updated_at: Optional[datetime] = None
