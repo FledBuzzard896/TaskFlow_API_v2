@@ -1,26 +1,65 @@
-services: # список контейнеров.
+services:
   app:
-    build: . # собирать образ из Dockerfile в текущей папке.
+    build: .
     ports:
-      - "8000:8000" # пробрасываем порт 8000 контейнера на порт 8000 хоста (чтобы обращаться к localhost:8000).
-    environment: # передаём переменные окружения
+      - "8000:8000"
+    environment:
       - ENV=development
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://taskflow_user:taskflow_pass@postgres:5432/taskflow_db
+      - MINIO_HOST=${MINIO_HOST}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_SECURE=${MINIO_SECURE}
     depends_on:
       - postgres
-    volumes: # монтируем текущую папку проекта в /app внутри контейнера.
+      - minio
+    volumes:
       - .:/app
 
   postgres:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: taskflow_user
-      POSTGRES_PASSWORD: taskflow_password
+      POSTGRES_PASSWORD: taskflow_pass
       POSTGRES_DB: taskflow_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}   # используем из .env
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web-консоль
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}; do
+        sleep 1;
+      done;
+      /usr/bin/mc mb myminio/${MINIO_BUCKET};
+      /usr/bin/mc policy set public myminio/${MINIO_BUCKET};
+      exit 0;
+      "
+
 volumes:
   postgres_data:
+  minio_data:
