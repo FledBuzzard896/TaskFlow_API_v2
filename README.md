@@ -128,7 +128,7 @@ docker-compose exec app alembic downgrade -1
 ENV=development
 
 # Строка подключения к PostgreSQL
-DATABASE_URL=postgresql://taskflow_user:taskflow_pass@postgres:5432/taskflow_db
+DATABASE_URL=postgresql://user:password@host:port/dbname
 ```
 
 В Docker Compose переменные загружаются автоматически из `.env` файла.
