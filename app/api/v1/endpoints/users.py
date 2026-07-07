@@ -14,10 +14,7 @@ router = APIRouter(
 
 @router.get("/users", response_model=List[UserResponse])
 async def print_users(db: AsyncSession = Depends(get_db)):
-    """
-    Получить список всех пользователей.
-    :return: Список пользователей
-    """
+    """ Получить список всех пользователей. """
     user_service = UserService(db)
     return await user_service.user_repo.get_all()
 
@@ -26,11 +23,8 @@ async def print_users(db: AsyncSession = Depends(get_db)):
 async def create_user(data: UserCreate,
                       db: AsyncSession = Depends(get_db)):
     """
-    Создать нового пользователя.
+    Создание нового пользователя.
     Проверка на уникальность username.
-    :param data: Данные для создания пользователя
-    :param db: Сессия подключения к БД
-    :return: Созданный пользователь
     """
     user_service = UserService(db)
     return await user_service.create_user(data.model_dump())
@@ -39,12 +33,7 @@ async def create_user(data: UserCreate,
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def print_user(user_id: int,
                      db: AsyncSession = Depends(get_db)):
-    """
-    Получить пользователя по ID.
-    :param user_id: ID пользователя
-    :param db: Сессия подключения к БД
-    :return: Найденный пользователь
-    """
+    """ Получить пользователя по ID. """
     user_service = UserService(db)
     return await user_service.get_by_id(user_id)
 
@@ -56,10 +45,6 @@ async def update_user(user_id: int,
     """
     Частичное обновление пользователя.
     При смене username проверяет, что имя не занято другим пользователем.
-    :param user_id: ID пользователя
-    :param update_data: Обновляемые поля
-    :param db: Сессия подключения к БД
-    :return: Обновлённый пользователь
     """
     user_service = UserService(db)
     return await user_service.update_user(user_id, update_data.dict(exclude_unset=True))
@@ -68,11 +53,6 @@ async def update_user(user_id: int,
 @router.delete("/users/{user_id}", response_model=UserResponse)
 async def delete_user(user_id: int,
                       db: AsyncSession = Depends(get_db)):
-    """
-    Удаление пользователя по ID.
-    :param user_id: ID пользователя
-    :param db: Сессия подключения к БД
-    :return: Удалённый пользователь
-    """
+    """ Удаление пользователя по ID. """
     user_service = UserService(db)
     return await user_service.delete_user(user_id)

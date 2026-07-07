@@ -22,19 +22,22 @@ async def print_tasks(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Вывод задач с различными параметрами.
-    :param task_status: Фильтрация по статусу задачи
-    :param project_id: Фильтрация по проекту, в котором находятся задачи
-    :param priority: Фильтрация по приоритету
-    :param assignee_id: Фильтрация по исполнителю
-    :param limit: Пагинация - определение количества выводимых задач
-    :param offset: Пагинация - определение сдвига задач
-    :param db: Сессия подключения к БД
-    :return: Список задач
+    Вывод задач с различными параметрами фильтрации и пагинации.
+
+    ---
+    **Фильтры:**
+    - `task_status` – статус задачи (enum)
+    - `project_id` – ID проекта
+    - `priority` – приоритет (enum)
+    - `assignee_id` – ID исполнителя
+
+    **Пагинация:**
+    - `limit` – максимальное количество записей (по умолчанию 100)
+    - `offset` – смещение для пропуска записей (по умолчанию 0)
     """
     filters = {}
-    if status:
-        filters["status"] = status.value
+    if task_status:
+        filters["status"] = task_status.value
     if project_id:
         filters["project_id"] = project_id
     if priority:
@@ -49,12 +52,7 @@ async def print_tasks(
 @router.post("/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(data: TaskCreate,
                       db: AsyncSession = Depends(get_db)):
-    """
-    Создаёт в базе новую задачу.
-    :param data: Данные для новой задачи
-    :param db: Сессия подключения к БД
-    :return: Новосозданная задача
-    """
+    """ Создаёт в базе новую задачу. """
     service = TaskService(db)
     return await service.create_task(data.model_dump())
 
@@ -62,12 +60,7 @@ async def create_task(data: TaskCreate,
 @router.get("/tasks/{task_id}", response_model=TaskResponse)
 async def print_task(task_id: int,
                      db: AsyncSession = Depends(get_db)):
-    """
-    Выводит одну задачу с соответствующим ID.
-    :param task_id: ID задачи
-    :param db: Сессия подключения к БД
-    :return: Задача
-    """
+    """ Выводит одну задачу с соответствующим ID. """
     service = TaskService(db)
     return await service.get_task_by_id(task_id)
 
@@ -79,11 +72,6 @@ async def update_task(task_id: int,
     """
     Обновляет задачу по её ID.
     Принимает только те поля, которые нужно изменить.
-
-    :param task_id: ID задачи
-    :param update_data: Изменённые данные
-    :param db: Сессия подключения к БД
-    :return: Изменённая задача
     """
     service = TaskService(db)
     return await service.update_task(task_id, update_data.model_dump(exclude_unset=True))
@@ -92,11 +80,6 @@ async def update_task(task_id: int,
 @router.delete("/tasks/{task_id}", response_model=TaskResponse)
 async def delete_task(task_id: int,
                       db: AsyncSession = Depends(get_db)):
-    """
-    Удаление задачи с соответствующим ID.
-    :param task_id: ID задачи
-    :param db: Сессия подключения к БД
-    :return: Удалённая задача
-    """
+    """ Удаление задачи с соответствующим ID. """
     service = TaskService(db)
     return await service.delete_task(task_id)

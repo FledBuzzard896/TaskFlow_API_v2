@@ -14,9 +14,7 @@ router = APIRouter(
 
 @router.get("/projects", response_model=List[ProjectResponse])
 async def print_projects(db: AsyncSession = Depends(get_db)):
-    """
-    Вывод всех проектов
-    """
+    """ Вывод всех проектов. """
     project_service = ProjectService(db)
     return await project_service.get_all_projects()
 
@@ -27,9 +25,6 @@ async def create_project(data: ProjectCreate,
     """
     Создание нового проекта.
     Проверка на существование пользователя по ID.
-    :param data: Данные по новому проекту
-    :param db: Сессия подключения к БД
-    :return: Новый проект
     """
     project_service = ProjectService(db)
     return await project_service.create_project(data.model_dump())
@@ -38,12 +33,7 @@ async def create_project(data: ProjectCreate,
 @router.get("/projects/{project_id}", response_model=ProjectResponse)
 async def print_project(project_id: int,
                         db: AsyncSession = Depends(get_db)):
-    """
-    Выводит один проект с соответствующим ID.
-    :param project_id: ID проекта
-    :param db: Сессия подключения к БД
-    :return: Сам проект
-    """
+    """ Выводит один проект с соответствующим ID. """
     project_service = ProjectService(db)
     return await project_service.get_by_id(project_id)
 
@@ -55,11 +45,6 @@ async def update_project(project_id: int,
     """
     Обновляет проект по его ID.
     Принимает только те поля, которые нужно изменить.
-
-    :param project_id: ID проекта
-    :param update_data: Изменённые данные
-    :param db: Сессия подключения к БД
-    :return: Изменённый проект
     """
     project_service = ProjectService(db)
     return await project_service.update_project(project_id, update_data.dict(exclude_unset=True))
@@ -68,11 +53,6 @@ async def update_project(project_id: int,
 @router.delete("/projects/{project_id}", response_model=ProjectResponse)
 async def delete_project(project_id: int,
                          db: AsyncSession = Depends(get_db)):
-    """
-    Удаление проекта с соответствующим ID.
-    :param project_id: ID проекта
-    :param db: Сессия подключения к БД
-    :return: Удалённый проект
-    """
+    """ Удаление проекта с соответствующим ID. """
     project_service = ProjectService(db)
     return await project_service.delete_project(project_id)

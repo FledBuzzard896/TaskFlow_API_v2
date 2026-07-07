@@ -22,3 +22,4 @@ class Task(Base):
     # связи (опционально)
     project = relationship("Project", back_populates="tasks")
     assignee = relationship("User", foreign_keys=[assignee_id])
+    attachments = relationship("Attachment", back_populates="task", cascade="all, delete-orphan")
