@@ -69,10 +69,7 @@ class TaskService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Исполнитель с таким ID не найден"
                 )
-        # Обновляем поля
-        for key, value in update_data.items():
-            setattr(task, key, value)
-        return await self.task_repo.update(task)
+        return await self.task_repo.update(task, update_data)
 
 
     async def delete_task(self, task_id: int) -> Task:

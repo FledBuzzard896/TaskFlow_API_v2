@@ -52,7 +52,21 @@ async def print_tasks(
 @router.post("/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(data: TaskCreate,
                       db: AsyncSession = Depends(get_db)):
-    """ Создаёт в базе новую задачу. """
+    """
+    Создаёт в базе новую задачу.
+
+    ---
+    **Приоритеты:**
+    - Выполняется
+    - Запланирована
+    - Завершена
+    - Брошена
+
+    **Приоритеты:**
+    - Низкий
+    - Средний
+    - Высокий
+    """
     service = TaskService(db)
     return await service.create_task(data.model_dump())
 

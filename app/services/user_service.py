@@ -36,15 +36,14 @@ class UserService:
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+
         # Проверка уникальности username (если передано)
         if "username" in update_data:
             existing = await self.user_repo.get_by_username(update_data["username"])
             if existing and existing.id != user_id:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username уже занят")
-        # Обновляем поля
-        for key, value in update_data.items():
-            setattr(user, key, value)
-        return await self.user_repo.update(user)
+
+        return await self.user_repo.update(user, update_data)
 
 
     async def delete_user(self, user_id: int) -> User:

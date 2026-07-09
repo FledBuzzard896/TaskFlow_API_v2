@@ -11,6 +11,7 @@ class Project(Base):
     description = Column(String, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Связи
     tasks = relationship("Task", back_populates="project")

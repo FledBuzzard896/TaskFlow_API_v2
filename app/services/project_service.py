@@ -40,12 +40,12 @@ class ProjectService:
 
 
     async def update_project(self, project_id: int, update_data: dict) -> Project:
+        # Получаем проект
         project = await self.project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Проект не найден")
-        for key, value in update_data.items():
-            setattr(project, key, value)
-        return await self.project_repo.update(project)
+            raise HTTPException(status_code=404, detail="Проект не найден")
+        # Передаём объект и словарь изменений в репозиторий
+        return await self.project_repo.update(project, update_data)
 
 
     async def delete_project(self, project_id: int) -> Project:

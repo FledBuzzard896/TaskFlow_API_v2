@@ -38,18 +38,11 @@ class UserRepository:
         return user
 
 
-    async def update(self, user_id: int, update_data: dict) -> User | None:
-        user = await self.get_by_id(user_id)
-        if not user:
-            return None
+    async def update(self, user: User, update_data: dict) -> User | None:
         for key, value in update_data.items():
             setattr(user, key, value)
-        try:
-            await self.session.commit()
-            await self.session.refresh(user)
-        except Exception as e:
-            await self.session.rollback()
-            raise e
+        await self.session.commit()
+        await self.session.refresh(user)
         return user
 
 

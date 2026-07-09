@@ -35,24 +35,17 @@ class ProjectRepository:
         return project
 
 
-    async def update(self, project_id: int, update_data: dict) -> Project | None:
-        project = await self.get_by_id(project_id)
-        if not project:
-            return None
+    async def update(self, project: Project, update_data: dict) -> Project | None:
         for key, value in update_data.items():
             setattr(project, key, value)
-        try:
-            await self.session.commit()
-            await self.session.refresh(project)
-        except Exception as e:
-            await self.session.rollback()
-            raise e
+        await self.session.commit()
+        await self.session.refresh(project)
         return project
 
 
     async def delete(self, project: Project) -> None:
         try:
-            self.session.delete(project)
+            await self.session.delete(project)
             await self.session.commit()
         except Exception as e:
             await self.session.rollback()

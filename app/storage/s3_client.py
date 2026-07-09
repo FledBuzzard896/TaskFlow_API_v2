@@ -24,7 +24,7 @@ class S3Client:
         # Генерируем уникальный ключ: task_<uuid>/<original_filename>
         file_key = f"{uuid.uuid4()}/{file_name}"
 
-        session = await get_session()
+        session = get_session()
         async with session.create_client(
             "s3",
             endpoint_url=self.endpoint_url,

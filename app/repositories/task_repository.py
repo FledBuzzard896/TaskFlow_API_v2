@@ -47,10 +47,7 @@ class TaskRepository:
         return task
 
 
-    async def update(self, task_id: int, update_data: dict) -> Task | None:
-        task = await self.get_by_id(task_id)
-        if not task:
-            return None
+    async def update(self, task: Task, update_data: dict) -> Task | None:
         for key, value in update_data.items():
             setattr(task, key, value)
         try:
@@ -64,7 +61,7 @@ class TaskRepository:
 
     async def delete(self, task: Task) -> None:
         try:
-            self.session.delete(task)
+            await self.session.delete(task)
             await self.session.commit()
         except Exception as e:
             await self.session.rollback()

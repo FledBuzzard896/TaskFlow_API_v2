@@ -39,7 +39,7 @@ class AttachmentService:
             "uploaded_by_user_id": uploaded_by_user_id,
         }
         attachment = await self.attachment_repo.create(attachment_data)
-        return {"attachment": attachment, "file_key": file_key}
+        return attachment
 
 
     async def get_attachments_by_task(self, task_id: int) -> list:
