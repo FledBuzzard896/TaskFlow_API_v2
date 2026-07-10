@@ -266,6 +266,41 @@ KEYCLOAK_CLIENT_SECRET=your-client-secret
 
 ---
 
+## Авторизация в API через Keycloak
+
+Для доступа к защищённым эндпоинтам необходимо получить JWT-токен от Keycloak и передавать его в заголовке `Authorization: Bearer <token>`.
+
+### 1. Получение токена
+
+Выполните `curl`-запрос к эндпоинту токена Keycloak (замените `<client_secret>`, `<username>`, `<password>` на свои данные):
+
+```bash
+curl -X POST http://localhost:8080/realms/taskflow/protocol/openid-connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=taskflow-api" \
+  -d "client_secret=<client_secret>" \
+  -d "username=<username>" \
+  -d "password=<password>" \
+  -d "grant_type=password"
+```
+Где взять параметры:
+- `client_id` – название клиента в Keycloak (по умолчанию `taskflow-api`).
+- `client_secret` – скопируйте из админ-консоли Keycloak:
+`Clients → taskflow-api → Credentials → Client Secret.`
+- `username` и `password` – учётные данные пользователя, созданного в realm `taskflow`.
+
+В ответе вы получите JSON с полем `access_token`. Скопируйте его значение (длинная строка).
+
+### 2. Использование токена в Swagger
+1. Откройте документацию Swagger: http://localhost:8000/docs.
+2. Нажмите зелёную кнопку Authorize (в правом верхнем углу).
+3. В поле Value вставьте скопированный access_token (только токен, без слова Bearer).
+4. Нажмите Authorize, затем Close.
+
+Теперь все запросы из Swagger будут автоматически подписываться этим токеном.
+
+---
+
 ## Доступные эндпоинты (кратко)
 
 > **Примечание:** Все эндпоинты, кроме `POST /users` и корневого (`/`), защищены и требуют валидный JWT-токен (заголовок `Authorization: Bearer <token>`).  
