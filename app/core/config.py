@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = "taskflow-files"
     MINIO_SECURE: bool = False
 
+    # Keycloak
+    KEYCLOAK_URL: str = "http://keycloak:8080"
+    KEYCLOAK_REALM: str = "taskflow"
+    KEYCLOAK_CLIENT_ID: str = "taskflow-api"
+    KEYCLOAK_CLIENT_SECRET: str
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

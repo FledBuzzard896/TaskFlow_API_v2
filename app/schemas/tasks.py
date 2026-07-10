@@ -14,7 +14,6 @@ class TaskBase(BaseModel):
 
 class TaskCreate(TaskBase):
     status: TaskStatus = Field(TaskStatus.IN_PROGRESS, description="Статус задачи")
-    user_id: Optional[int] = Field(None, description="Автор задачи")
     assignee_id: Optional[int] = Field(None, description="Исполнитель задачи")
 
 class TaskUpdate(BaseModel):

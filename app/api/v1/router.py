@@ -1,13 +1,19 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.api.v1.endpoints import projects, users, tasks, attachments
+from app.core.security import get_current_user
 
 
-main_router = APIRouter(
+public_router = APIRouter(
+    prefix="/api/v1"
+)
+public_router.include_router(users.public_router)
+
+protected_router = APIRouter(
     prefix="/api/v1",
     tags=["api_v1"],
+    dependencies=[Depends(get_current_user)]
 )
-
-main_router.include_router(projects.router)
-main_router.include_router(users.router)
-main_router.include_router(tasks.router)
-main_router.include_router(attachments.router)
+protected_router.include_router(projects.router)
+protected_router.include_router(users.protected_router)
+protected_router.include_router(tasks.router)
+protected_router.include_router(attachments.router)

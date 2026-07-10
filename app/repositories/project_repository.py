@@ -23,6 +23,12 @@ class ProjectRepository:
         return result.scalar_one_or_none()
 
 
+    async def get_by_owner(self, owner_id: int) -> list[Project]:
+        query = select(Project).where(Project.owner_id == owner_id)
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+
     async def create(self, data: dict) -> Project:
         project = Project(**data)
         self.session.add(project)
