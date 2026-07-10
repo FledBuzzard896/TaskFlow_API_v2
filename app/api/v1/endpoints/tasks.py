@@ -109,6 +109,18 @@ async def update_task(
     """
     Обновляет задачу по её ID.
     Принимает только те поля, которые нужно изменить.
+
+    ---
+    **Приоритеты:**
+    - Выполняется
+    - Запланирована
+    - Завершена
+    - Брошена
+
+    **Приоритеты:**
+    - Низкий
+    - Средний
+    - Высокий
     """
     service = TaskService(db)
     return await service.update_task(task_id, update_data.model_dump(exclude_unset=True), current_user)
