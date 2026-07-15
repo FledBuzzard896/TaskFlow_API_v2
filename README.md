@@ -190,9 +190,6 @@ docker-compose exec app alembic downgrade -1
 Для работы приложения требуется файл `.env` (пример в `.env.example`):
 
 ```env
-# Режим работы
-ENV=development
-
 # Строка подключения к PostgreSQL
 DATABASE_URL=postgresql://user:password@host:port/dbname
 
